@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Message, AIResponse } from '../types';
+import { Message } from '../types';
+import { ExtensionBridge } from '../services/ExtensionBridge';
 
 interface UseChatProps {
     initialMessage?: string;
@@ -39,61 +40,16 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
         setIsProcessing(true);
 
         try {
-            let tab: chrome.tabs.Tab | { id: number } | undefined;
+            const tabId = await ExtensionBridge.getActiveTabId();
+            const aiData = await ExtensionBridge.executePrompt(userMsg.content, tabId);
 
-            if (chrome?.tabs?.query) {
-                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-                tab = tabs[0];
-            } else {
-                console.log("useChat: Chrome Tabs API not available, using mock tab.");
-                tab = { id: 1337 };
-            }
-
-            // Fallback for Test Mode
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('testing') === 'true') {
-                tab = { id: 1337 };
-            } else if (!tab?.id && chrome?.tabs?.getCurrent) {
-                tab = await chrome.tabs.getCurrent() as chrome.tabs.Tab;
-            }
-
-            if (!tab?.id) tab = { id: 1337 };
-
-            if (!tab?.id) throw new Error("No active tab found");
-
-            if (!chrome?.runtime?.sendMessage) {
-                // Determine if we are in a test/mock environment
-                console.warn("Chrome Runtime not available. Simulating success.");
-                setTimeout(() => {
-                    setMessages(prev => [...prev, {
-                        id: crypto.randomUUID(),
-                        role: 'assistant',
-                        content: "Test Mode: Message received (Backend not connected)",
-                        timestamp: Date.now(),
-                        meta: { type: 'analysis', code: '// Mock Code', explanation: 'Test Mode', riskLevel: 'safe' }
-                    }]);
-                }, 500);
-                return;
-            }
-
-            const response = await chrome.runtime.sendMessage({
-                action: "EXECUTE_PROMPT",
-                prompt: userMsg.content,
-                tabId: tab.id
-            });
-
-            if (response && response.status === 'success') {
-                const aiData = response.data as AIResponse;
-                setMessages(prev => [...prev, {
-                    id: crypto.randomUUID(),
-                    role: 'assistant',
-                    content: aiData.explanation || "Action executed.",
-                    timestamp: Date.now(),
-                    meta: aiData
-                }]);
-            } else {
-                throw new Error(response?.message || "Unknown error");
-            }
+            setMessages(prev => [...prev, {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: aiData.explanation || "Action executed.",
+                timestamp: Date.now(),
+                meta: aiData
+            }]);
 
         } catch (error: any) {
             setMessages(prev => [...prev, {
@@ -119,13 +75,7 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
             autoRun: false
         };
 
-        await chrome.runtime.sendMessage({
-            action: "SAVE_SCRIPT",
-            payload: {
-                ...extension,
-                code: '(async()=>{try{' + extension.code + '}catch(e){console.error(e)}})()'
-            }
-        });
+        await ExtensionBridge.saveScript(extension);
         alert("Saved to Library!");
     };
 

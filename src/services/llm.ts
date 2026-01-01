@@ -1,63 +1,22 @@
 import { AIResponse, LLMRequest } from '../types';
-
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+import { GeminiClient } from './GeminiClient';
+import { TestScenarioHandler } from './TestScenarioHandler';
 
 export class LLMService {
+    private client: GeminiClient;
     private apiKey: string;
 
     constructor(apiKey: string) {
         this.apiKey = apiKey;
+        this.client = new GeminiClient(apiKey);
     }
 
     async generateCode(request: LLMRequest): Promise<AIResponse> {
-        // --- TEST HOOKS ---
-        if (request.prompt.startsWith("TEST_SCENARIO:")) {
-            const scenario = request.prompt.split("TEST_SCENARIO:")[1].trim();
+        // 1. Check Test Scenarios
+        const testResponse = TestScenarioHandler.handle(request.prompt, request.context);
+        if (testResponse) return testResponse;
 
-            if (scenario === 'COLOR_RED') {
-                return {
-                    explanation: "Test Mode: Changing background to red",
-                    code: "document.body.style.backgroundColor = 'red';",
-                    type: "style",
-                    riskLevel: "safe"
-                };
-            }
-
-            if (scenario === 'FAIL_FIRST') {
-                return {
-                    explanation: "Test Mode: Generating broken code",
-                    code: "throw new Error('Intentional Test Failure');",
-                    type: "interaction",
-                    riskLevel: "safe"
-                };
-            }
-
-            if (scenario === 'SPATIAL_CLICK') {
-                // In the spatial test, we want to click the button with the highest Y value.
-                // The AI normally picks this from 'interactiveElements'.
-                // We'll simulate the AI picking the correct ID assuming the test page setup matches.
-                // We need to look at the 'interactiveElements' context to find the ID.
-                // Since this is a static mock, we'll try to find an element that corresponds to "Bottom".
-                // But wait, the test page assigns IDs `btn-top` and `btn-bottom`. 
-                // The `SpatialHarvester` assigns a `data-extendo-id`.
-                // The AI response uses `document.querySelector('[data-extendo-id="..."]')`.
-
-                // For this test to be robust without real AI, we can cheat slightly:
-                // We'll scan the provided context. If we see an element with text "Bottom", we pick it.
-                const elements = request.context.interactiveElements || [];
-                const bottomBtn = elements.find(el => el.text === 'Bottom') || elements[0];
-                const targetId = bottomBtn ? bottomBtn.id : 0;
-
-                return {
-                    explanation: "Test Mode: Clicking bottom button",
-                    code: `const el = document.querySelector('[data-extendo-id="${targetId}"]'); if(el) el.click();`,
-                    type: "interaction",
-                    riskLevel: "safe"
-                };
-            }
-        }
-        // ------------------
-
+        // 2. Build Prompt
         const systemPrompt = `
 You are Extendo, an expert browser automation agent.
 Your goal is to write a single, efficient, self-contained JavaScript function that accomplishes the user's task on the current page.
@@ -81,7 +40,7 @@ Return a JSON object with this structure:
 }
 `;
 
-        // Mock response for now if no API key
+        // 3. Mock or Execute
         if (this.apiKey === "TODO_API_KEY") {
             return {
                 explanation: "I can't truly generate code without an API key, so here is a mock alert.",
@@ -92,20 +51,8 @@ Return a JSON object with this structure:
         }
 
         try {
-            const response = await fetch(GEMINI_API_URL + "?key=" + this.apiKey, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: systemPrompt }] }]
-                })
-            });
-
-            if (!response.ok) throw new Error(response.statusText);
-            const data = await response.json();
-            const text = data.candidates[0].content.parts[0].text;
-
-            const jsonStr = text.replace(/```json\n|\n```/g, "").replace(/^```/, "").replace(/```$/, "");
-            return JSON.parse(jsonStr);
+            const text = await this.client.generateContent(systemPrompt);
+            return GeminiClient.parseFnResponse(text);
         } catch (e) {
             console.error("LLM Error", e);
             throw new Error("Failed to generate code");
@@ -113,15 +60,11 @@ Return a JSON object with this structure:
     }
 
     async generateRepair(originalPrompt: string, brokenCode: string, error: string, context: any): Promise<AIResponse> {
-        if (originalPrompt.includes("TEST_SCENARIO:FAIL_FIRST")) {
-            return {
-                explanation: "Test Mode: Repairing intentional failure",
-                code: "document.body.setAttribute('data-healed', 'true');",
-                type: "style",
-                riskLevel: "safe"
-            };
-        }
+        // 1. Check Test Scenarios
+        const testResponse = TestScenarioHandler.handleRepair(originalPrompt);
+        if (testResponse) return testResponse;
 
+        // 2. Build Prompt
         const systemPrompt = `
 You are Extendo, an expert browser automation agent.
 You previously generated code that FAILED to execute.
@@ -147,7 +90,7 @@ Return the FIXED code in the same JSON format as before:
 }
 `;
 
-        // Mock response for now if no API key
+        // 3. Mock or Execute
         if (this.apiKey === "TODO_API_KEY") {
             return {
                 explanation: "Mock Repair: Wrapped in extra try/catch",
@@ -158,20 +101,8 @@ Return the FIXED code in the same JSON format as before:
         }
 
         try {
-            const response = await fetch(GEMINI_API_URL + "?key=" + this.apiKey, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: systemPrompt }] }]
-                })
-            });
-
-            if (!response.ok) throw new Error(response.statusText);
-            const data = await response.json();
-            const text = data.candidates[0].content.parts[0].text;
-
-            const jsonStr = text.replace(/```json\n|\n```/g, "").replace(/^```/, "").replace(/```$/, "");
-            return JSON.parse(jsonStr);
+            const text = await this.client.generateContent(systemPrompt);
+            return GeminiClient.parseFnResponse(text);
         } catch (e) {
             console.error("LLM Error during Repair", e);
             throw new Error("Failed to generate repair");
@@ -196,15 +127,7 @@ Return ONLY the raw JavaScript code, no JSON, no Markdown.
         }
 
         try {
-            const response = await fetch(GEMINI_API_URL + "?key=" + this.apiKey, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: systemPrompt }] }]
-                })
-            });
-            const data = await response.json();
-            let text = data.candidates[0].content.parts[0].text;
+            let text = await this.client.generateContent(systemPrompt);
             text = text.replace(/```javascript\n|\n```/g, "").replace(/```/g, "");
             return text;
         } catch (e) {

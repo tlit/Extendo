@@ -4,6 +4,8 @@ test('Set 3: Spatial Awareness', async ({ page, extensionId }) => {
     const popupUrl = `chrome-extension://${extensionId}/index.html?testing=true`;
     const popup = await page.context().newPage();
     await popup.goto(popupUrl);
+    await popup.waitForLoadState('domcontentloaded');
+    await popup.waitForSelector('body');
 
     // Setup popup with known geometry (overwriting the app UI temporarily? Or appending?)
     // If we overwrite, the App logic is gone. 
