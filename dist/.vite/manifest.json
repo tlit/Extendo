@@ -5,24 +5,24 @@
     "src": "../../@crx/manifest",
     "isEntry": true
   },
-  "_harvester-DvikqW3K.js": {
-    "file": "assets/harvester-DvikqW3K.js",
+  "_harvester-Cu8zpfFx.js": {
+    "file": "assets/harvester-Cu8zpfFx.js",
     "name": "harvester"
   },
   "index.html": {
-    "file": "assets/index.html-DClAXnws.js",
+    "file": "assets/index.html-BDiIj4hY.js",
     "name": "index.html",
     "src": "index.html",
     "isEntry": true,
     "imports": [
-      "_harvester-DvikqW3K.js"
+      "_harvester-Cu8zpfFx.js"
     ],
     "css": [
       "assets/index-BTi--xpD.css"
     ]
   },
   "index.ts-loader.js": {
-    "file": "assets/index.ts-loader-BXQCj1GI.js",
+    "file": "assets/index.ts-loader-CIYXjLi2.js",
     "src": "index.ts-loader.js"
   },
   "src/background/index.ts": {
@@ -32,12 +32,12 @@
     "isEntry": true
   },
   "src/content/index.ts": {
-    "file": "assets/index.ts-DDSJ1uXX.js",
+    "file": "assets/index.ts-DrWWXHjj.js",
     "name": "index.ts",
     "src": "src/content/index.ts",
     "isEntry": true,
     "imports": [
-      "_harvester-DvikqW3K.js"
+      "_harvester-Cu8zpfFx.js"
     ]
   }
 }

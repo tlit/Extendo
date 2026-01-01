@@ -16,24 +16,43 @@ export function Library({ onBack }: LibraryProps) {
     }, []);
 
     const refreshList = () => {
+        if (!chrome?.runtime?.sendMessage) {
+            console.log("Library: Test Mode - using mock data");
+            setExtensions([
+                { id: 'mock-1', name: 'Test Script', trigger: 'test', code: 'console.log("test")', created: Date.now(), type: 'interaction', autoRun: false }
+            ]);
+            return;
+        }
         chrome.runtime.sendMessage({ action: "GET_SCRIPTS" }).then(res => {
             if (res.data) setExtensions(res.data);
         });
     };
 
     const handleDelete = (id: string) => {
+        if (!chrome?.runtime?.sendMessage) {
+            setExtensions(prev => prev.filter(e => e.id !== id));
+            return;
+        }
         chrome.runtime.sendMessage({ action: "DELETE_SCRIPT", id }).then(() => {
             setExtensions(prev => prev.filter(e => e.id !== id));
         });
     };
 
     const handleToggle = (id: string) => {
+        if (!chrome?.runtime?.sendMessage) {
+            setExtensions(prev => prev.map(e => e.id === id ? { ...e, autoRun: !e.autoRun } : e));
+            return;
+        }
         chrome.runtime.sendMessage({ action: "TOGGLE_AUTORUN", id }).then(() => {
             setExtensions(prev => prev.map(e => e.id === id ? { ...e, autoRun: !e.autoRun } : e));
         });
     };
 
     const handleRun = async (code: string) => {
+        if (!chrome?.tabs?.query) {
+            console.log("Executing code in mock env:", code);
+            return;
+        }
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab?.id) {
             chrome.scripting.executeScript({
@@ -70,7 +89,9 @@ export function Library({ onBack }: LibraryProps) {
                     if (item.code && item.trigger) {
                         // Generate a new ID to avoid collisions
                         const newItem = { ...item, id: crypto.randomUUID() };
-                        await chrome.runtime.sendMessage({ action: "SAVE_SCRIPT", payload: newItem });
+                        if (chrome?.runtime?.sendMessage) {
+                            await chrome.runtime.sendMessage({ action: "SAVE_SCRIPT", payload: newItem });
+                        }
                         count++;
                     }
                 }

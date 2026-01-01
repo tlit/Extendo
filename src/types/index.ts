@@ -48,3 +48,11 @@ export interface MicroExtension {
     type: ExtendoMode;
     autoRun: boolean;
 }
+
+export interface Message {
+    id: string;
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    timestamp: number;
+    meta?: AIResponse;
+}

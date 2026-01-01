@@ -16,8 +16,17 @@ export function DebugConsole({ onBack }: DebugConsoleProps) {
                 setLogs(prev => [...prev, req.payload]);
             }
         };
-        chrome.runtime.onMessage.addListener(listener);
-        return () => chrome.runtime.onMessage.removeListener(listener);
+
+        if (chrome?.runtime?.onMessage) {
+            chrome.runtime.onMessage.addListener(listener);
+            return () => chrome.runtime.onMessage.removeListener(listener);
+        } else {
+            // Mock logs for testing
+            const timer = setTimeout(() => {
+                setLogs([{ id: 'mock-log', timestamp: Date.now(), category: 'system', message: 'Test Environment detected. Console ready.' }]);
+            }, 500);
+            return () => clearTimeout(timer);
+        }
     }, []);
 
     useEffect(() => {
@@ -45,8 +54,8 @@ export function DebugConsole({ onBack }: DebugConsoleProps) {
                     <div key={log.id} className="flex gap-2 break-all hover:bg-white/5 p-1 rounded">
                         <span className="text-slate-500 flex-shrink-0">[{new Date(log.timestamp).toLocaleTimeString().split(' ')[0]}]</span>
                         <span className={`flex-shrink-0 font-bold w-16 uppercase ${log.category === 'error' ? 'text-red-400' :
-                                log.category === 'ai' ? 'text-purple-400' :
-                                    log.category === 'execution' ? 'text-emerald-400' : 'text-blue-400'
+                            log.category === 'ai' ? 'text-purple-400' :
+                                log.category === 'execution' ? 'text-emerald-400' : 'text-blue-400'
                             }`}>{log.category}</span>
                         <span className="text-slate-300">{log.message}</span>
                     </div>
