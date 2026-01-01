@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Extendo",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "assets/index.ts-loader-BXQCj1GI.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "resources": [
+        "assets/harvester-DvikqW3K.js",
+        "assets/index.ts-DDSJ1uXX.js"
+      ],
+      "use_dynamic_url": false
+    }
+  ]
+}
