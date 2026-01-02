@@ -1,0 +1,69 @@
+
+Running 3 tests using 1 worker
+
+[1A[2K[1/3] [chromium] › src\tests\e2e\visual.spec.ts:4:5 › Visual Regression › Popup Initial State
+[1A[2K  1) [chromium] › src\tests\e2e\visual.spec.ts:4:5 › Visual Regression › Popup Initial State ───────
+
+    Error: A snapshot doesn't exist at C:\repos\Extendo\src\tests\e2e\visual.spec.ts-snapshots\popup-initial-chromium-win32.png, writing actual.
+
+      10 |         await popup.waitForTimeout(500);
+      11 |
+    > 12 |         await expect(popup).toHaveScreenshot('popup-initial.png');
+         |         ^
+      13 |     });
+      14 |
+      15 |     test('Chat UI State', async ({ page, extensionId }) => {
+        at C:\repos\Extendo\src\tests\e2e\visual.spec.ts:12:9
+
+    attachment #1: popup-initial (image/png) ───────────────────────────────────────────────────────
+    Expected: src\tests\e2e\visual.spec.ts-snapshots\popup-initial-chromium-win32.png
+    Received: test-results\visual-Visual-Regression-Popup-Initial-State-chromium\popup-initial-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[2/3] [chromium] › src\tests\e2e\visual.spec.ts:15:5 › Visual Regression › Chat UI State
+[1A[2K  2) [chromium] › src\tests\e2e\visual.spec.ts:15:5 › Visual Regression › Chat UI State ────────────
+
+    Error: A snapshot doesn't exist at C:\repos\Extendo\src\tests\e2e\visual.spec.ts-snapshots\popup-input-filled-chromium-win32.png, writing actual.
+
+      22 |
+      23 |         // Don't submit, just check input state
+    > 24 |         await expect(popup).toHaveScreenshot('popup-input-filled.png');
+         |         ^
+      25 |     });
+      26 |
+      27 |     test('Error State Visuals', async ({ page, extensionId }) => {
+        at C:\repos\Extendo\src\tests\e2e\visual.spec.ts:24:9
+
+    attachment #1: popup-input-filled (image/png) ──────────────────────────────────────────────────
+    Expected: src\tests\e2e\visual.spec.ts-snapshots\popup-input-filled-chromium-win32.png
+    Received: test-results\visual-Visual-Regression-Chat-UI-State-chromium\popup-input-filled-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[3/3] [chromium] › src\tests\e2e\visual.spec.ts:27:5 › Visual Regression › Error State Visuals
+[1A[2K  3) [chromium] › src\tests\e2e\visual.spec.ts:27:5 › Visual Regression › Error State Visuals ──────
+
+    Error: A snapshot doesn't exist at C:\repos\Extendo\src\tests\e2e\visual.spec.ts-snapshots\popup-error-state-chromium-win32.png, writing actual.
+
+      39 |         });
+      40 |
+    > 41 |         await expect(popup).toHaveScreenshot('popup-error-state.png');
+         |         ^
+      42 |     });
+      43 | });
+      44 |
+        at C:\repos\Extendo\src\tests\e2e\visual.spec.ts:41:9
+
+    attachment #1: popup-error-state (image/png) ───────────────────────────────────────────────────
+    Expected: src\tests\e2e\visual.spec.ts-snapshots\popup-error-state-chromium-win32.png
+    Received: test-results\visual-Visual-Regression-Error-State-Visuals-chromium\popup-error-state-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  3 failed
+    [chromium] › src\tests\e2e\visual.spec.ts:4:5 › Visual Regression › Popup Initial State ────────
+    [chromium] › src\tests\e2e\visual.spec.ts:15:5 › Visual Regression › Chat UI State ─────────────
+    [chromium] › src\tests\e2e\visual.spec.ts:27:5 › Visual Regression › Error State Visuals ───────
+
+[36m  Serving HTML report at http://localhost:64397. Press Ctrl+C to quit.[39m

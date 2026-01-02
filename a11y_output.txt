@@ -1,0 +1,13 @@
+
+Running 4 tests using 2 workers
+
+[1A[2K[1/4] [firefox] › src\tests\e2e\a11y.spec.ts:5:5 › Accessibility (A11y) › Popup should not have critical a11y violations
+[1A[2K[2/4] [chromium] › src\tests\e2e\a11y.spec.ts:5:5 › Accessibility (A11y) › Popup should not have critical a11y violations
+[1A[2K[3/4] [chromium] › src\tests\e2e\a11y.spec.ts:22:5 › Accessibility (A11y) › Chat Interface should be accessible
+[1A[2K[4/4] [firefox] › src\tests\e2e\a11y.spec.ts:22:5 › Accessibility (A11y) › Chat Interface should be accessible
+[1A[2K  4 passed (6.0s)
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m

@@ -1,0 +1,10 @@
+
+ RUN  v4.0.16 C:/repos/Extendo
+
+ ✓ src/tests/unit/schema.spec.ts (3 tests) 7ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  14:14:58
+   Duration  809ms (transform 45ms, setup 0ms, import 133ms, tests 7ms, environment 460ms)
+
