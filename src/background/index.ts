@@ -95,7 +95,7 @@ async function handlePrompt(prompt: string, tabId: number) {
             // If we are running an E2E test, we are likely targeting the popup itself, 
             // which Chrome blocks injection into. We accept this validation limitation 
             // and assume success if it was a tailored Test Scenario.
-            if (prompt.startsWith("TEST_SCENARIO:")) {
+            if (prompt.startsWith("TEST_SCENARIO:") && !prompt.includes('FAIL_FIRST')) {
                 Logger.log('execution', 'Test Mode: Ignoring injection error on restricted page');
                 return { status: "success", data: aiResponse };
             }
@@ -159,7 +159,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         } else if (state) {
             Logger.log('error', 'Runtime Execution Failed', request.error);
 
-            if (state.retries < 3) {
+            if (state && state.retries < 3) {
                 performSelfHealing(tabId, state, request.error);
             } else {
                 Logger.log('error', 'Max retries reached. Giving up.');
@@ -169,6 +169,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             // No state? Maybe it was a manual run or old state.
             Logger.log('error', 'Runtime Failure (No Active State)', request.error);
         }
+
+        // Broadcast to Popup (if open)
+        chrome.runtime.sendMessage({
+            action: "RUNTIME_UPDATE",
+            status: request.status,
+            error: request.error,
+            tabId
+        }).catch(() => { /* Popup closed, ignore */ });
     }
 
     // Storage Routes

@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures';
 
 test('Set 2: Self-Healing Loop', async ({ page, extensionId }) => {
     await page.goto('https://example.com');
-    const popupUrl = `chrome-extension://${extensionId}/index.html?testing=true`;
+    const popupUrl = `chrome-extension://${extensionId}/index.html`;
     const popup = await page.context().newPage();
     await popup.goto(popupUrl);
 
@@ -14,7 +14,6 @@ test('Set 2: Self-Healing Loop', async ({ page, extensionId }) => {
     // 2. Expect Self-Healing Triggers
     // The first execution should fail, triggering the repair loop in background
 
-    // 2. Expect Success (Simulated by Test Mode logic in background)
-    // Note: Real healing loop happens in background, checking initial injection success here
-    await expect(popup.getByText('Test Mode: Generating broken code')).toBeVisible();
+    // 2. Expect Error (Since injection intentionally fails)
+    await expect(popup.getByText('Error')).toBeVisible();
 });

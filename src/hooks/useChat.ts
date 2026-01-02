@@ -25,6 +25,28 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
 
     useEffect(scrollToBottom, [messages]);
 
+    useEffect(() => {
+        const listener = (request: any) => {
+            if (request.action === "RUNTIME_UPDATE") {
+                if (request.status === 'error') {
+                    setMessages(prev => [...prev, {
+                        id: crypto.randomUUID(),
+                        role: 'system',
+                        content: `Runtime Error: ${request.error}`,
+                        timestamp: Date.now()
+                    }]);
+                } else if (request.status === 'success') {
+                    // Optional: Add success confirmation if desired, or stay silent
+                }
+            }
+        };
+        // Mock environment check
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+            chrome.runtime.onMessage.addListener(listener);
+            return () => chrome.runtime.onMessage.removeListener(listener);
+        }
+    }, []);
+
     const sendMessage = async (content: string) => {
         if (!content.trim() || isProcessing) return;
 

@@ -72,4 +72,43 @@ describe('ContextHarvester', () => {
         expect(summary.length).toBeGreaterThan(0);
         expect(summary.length).toBeLessThan(10000);
     });
+
+    it('should handle deep nesting and shadow DOM-like structures', () => {
+        document.body.innerHTML = `
+            <div id="level-1">
+                <div id="level-2">
+                    <div id="level-3">
+                        <span class="deep-text">Deep Content</span>
+                    </div>
+                </div>
+            </div>
+            <section id="siblings">
+                <article>Item 1</article>
+                <article>Item 2</article>
+            </section>
+        `;
+
+        const summary = ContextHarvester.harvest().domSummary;
+
+        expect(summary).toContain('<div#level-1>');
+        expect(summary).toContain('<div#level-2>');
+        expect(summary).toContain('<span.deep-text>');
+        expect(summary).toContain('Deep Content');
+        expect(summary).toContain('<section#siblings>');
+        expect(summary).toContain('<article>');
+    });
+
+    it('should prioritize interactive elements in summary if logic exists', () => {
+        // This is a behavioral test for future optimization. 
+        // Currently we just check that buttons are captured.
+        document.body.innerHTML = `
+            <main>
+                <div>Static Text</div>
+                <button id="action">Interact</button>
+            </main>
+        `;
+        const summary = ContextHarvester.harvest().domSummary;
+        expect(summary).toContain('<button#action>');
+    });
 });
+

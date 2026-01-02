@@ -14,6 +14,7 @@ export const MessageBubble = ({ message, onSave }: MessageBubbleProps) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.2 }}
             className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
+            data-testid="message-bubble"
         >
             <div
                 className={`
