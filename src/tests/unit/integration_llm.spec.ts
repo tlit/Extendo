@@ -1,8 +1,8 @@
 
 /// <reference types="vitest" />
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { LLMService } from '../../services/llm.ts';
-import { GeminiClient } from '../../services/GeminiClient';
+
 
 // Mock GeminiClient to check Prompt Construction
 vi.mock('../../services/GeminiClient', () => {

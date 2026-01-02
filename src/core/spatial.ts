@@ -28,14 +28,14 @@ export class SpatialHarvester {
             results.push({
                 id: this.nextId,
                 rect: {
-                    x: rect.x + window.scrollX, // Absolute coordinates
-                    y: rect.y + window.scrollY,
+                    x: (rect.x || rect.left) + (window.scrollX || 0), // Absolute coordinates
+                    y: (rect.y || rect.top) + (window.scrollY || 0),
                     width: rect.width,
                     height: rect.height,
-                    top: rect.top + window.scrollY,
-                    left: rect.left + window.scrollX,
-                    bottom: rect.bottom + window.scrollY,
-                    right: rect.right + window.scrollX
+                    top: rect.top + (window.scrollY || 0),
+                    left: rect.left + (window.scrollX || 0),
+                    bottom: rect.bottom + (window.scrollY || 0),
+                    right: rect.right + (window.scrollX || 0)
                 },
                 tagName: el.tagName.toLowerCase(),
                 text: (el.textContent || (el as HTMLInputElement).value || '').slice(0, 50).trim(),

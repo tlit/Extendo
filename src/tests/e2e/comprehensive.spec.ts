@@ -1,6 +1,6 @@
 
 import { test, expect } from '../fixtures';
-import path from 'path';
+
 
 test.describe('Comprehensive E2E Suite', () => {
 

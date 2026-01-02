@@ -7,6 +7,13 @@ interface UseChatProps {
 }
 
 export const useChat = ({ initialMessage }: UseChatProps = {}) => {
+    const generateId = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return Date.now().toString(36) + Math.random().toString(36).substring(2);
+    };
+
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 'init',
@@ -20,7 +27,9 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === 'function') {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
     useEffect(scrollToBottom, [messages]);
@@ -30,7 +39,7 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
             if (request.action === "RUNTIME_UPDATE") {
                 if (request.status === 'error') {
                     setMessages(prev => [...prev, {
-                        id: crypto.randomUUID(),
+                        id: generateId(),
                         role: 'system',
                         content: `Runtime Error: ${request.error}`,
                         timestamp: Date.now()
@@ -51,7 +60,7 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
         if (!content.trim() || isProcessing) return;
 
         const userMsg: Message = {
-            id: crypto.randomUUID(),
+            id: generateId(),
             role: 'user',
             content,
             timestamp: Date.now()
@@ -66,7 +75,7 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
             const aiData = await ExtensionBridge.executePrompt(userMsg.content, tabId);
 
             setMessages(prev => [...prev, {
-                id: crypto.randomUUID(),
+                id: generateId(),
                 role: 'assistant',
                 content: aiData.explanation || "Action executed.",
                 timestamp: Date.now(),
@@ -75,7 +84,7 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
 
         } catch (error: any) {
             setMessages(prev => [...prev, {
-                id: crypto.randomUUID(),
+                id: generateId(),
                 role: 'system',
                 content: `Error: ${error.message}`,
                 timestamp: Date.now()
@@ -88,7 +97,7 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
     const saveToLibrary = async (msg: Message) => {
         if (!msg.meta) return;
         const extension = {
-            id: crypto.randomUUID(),
+            id: generateId(),
             name: msg.content.substring(0, 20) + '...',
             trigger: msg.content,
             code: msg.meta.code,
@@ -111,3 +120,4 @@ export const useChat = ({ initialMessage }: UseChatProps = {}) => {
         messagesEndRef
     };
 };
+

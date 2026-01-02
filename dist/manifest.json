@@ -11,11 +11,11 @@
   },
   "content_scripts": [
     {
+      "js": [
+        "assets/index.ts-loader-CIYXjLi2.js"
+      ],
       "matches": [
         "<all_urls>"
-      ],
-      "js": [
-        "src/content/index.ts-loader.js"
       ]
     }
   ],
@@ -34,8 +34,8 @@
         "<all_urls>"
       ],
       "resources": [
-        "**/*",
-        "*"
+        "assets/harvester-Cu8zpfFx.js",
+        "assets/index.ts-DrWWXHjj.js"
       ],
       "use_dynamic_url": false
     }

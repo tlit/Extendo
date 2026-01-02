@@ -1,6 +1,6 @@
 
 /// <reference types="vitest" />
-// @vitest-environment jsdom
+
 
 import { describe, it, expect } from 'vitest';
 import { ContextHarvester } from '../../core/harvester';

@@ -1,6 +1,6 @@
 
 /// <reference types="vitest" />
-// @vitest-environment jsdom
+
 
 import { describe, it, expect } from 'vitest';
 import { SpatialHarvester } from '../../core/spatial';
@@ -15,6 +15,15 @@ describe('SpatialHarvester', () => {
                 <div>Not Interactive</div>
             </div>
         `;
+
+        // Mock visibility for all elements
+        Array.from(document.body.querySelectorAll('*')).forEach(el => {
+            el.getBoundingClientRect = () => ({
+                width: 100, height: 20, x: 0, y: 0,
+                top: 0, left: 0, bottom: 20, right: 100,
+                toJSON: () => { }
+            } as any);
+        });
 
         const elements = SpatialHarvester.getInteractiveElements();
 
@@ -32,6 +41,15 @@ describe('SpatialHarvester', () => {
             <button>1</button>
             <button>2</button>
         `;
+
+        // Mock visibility
+        Array.from(document.body.querySelectorAll('button')).forEach(el => {
+            el.getBoundingClientRect = () => ({
+                width: 100, height: 20, x: 0, y: 0,
+                top: 0, left: 0, bottom: 20, right: 100,
+                toJSON: () => { }
+            } as any);
+        });
 
         const elements = SpatialHarvester.getInteractiveElements();
         const ids = elements.map(e => e.id);
@@ -53,8 +71,8 @@ describe('SpatialHarvester', () => {
         });
 
         // Mock scroll
-        window.scrollX = 0;
-        window.scrollY = 20;
+        Object.defineProperty(window, 'scrollX', { value: 0, writable: true });
+        Object.defineProperty(window, 'scrollY', { value: 20, writable: true });
 
         const elements = SpatialHarvester.getInteractiveElements();
         const spatialBtn = elements[0];

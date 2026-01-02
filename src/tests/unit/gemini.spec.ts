@@ -9,6 +9,7 @@ describe('GeminiClient', () => {
     beforeEach(() => {
         client = new GeminiClient('TEST_API_KEY');
         global.fetch = vi.fn();
+        vi.spyOn(console, 'error').mockImplementation(() => { });
     });
 
     it('should return text content on success', async () => {
